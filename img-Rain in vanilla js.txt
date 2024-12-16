@@ -1,0 +1,122 @@
+img-Rain in vanilla js
+
+html
+ <body>
+    <div class="container">
+
+    </div>
+
+    <div class="emojis"></div>
+    <script type="module" src="/src/script.js"></script>
+  </body>
+
+Style
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container{
+  height: 100vh;
+  width: 100vw;
+}
+
+.emojis{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+pointer-events: none;
+z-index: 2;
+}
+
+.emoji {
+  position: absolute;
+  border-radius: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform;
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  background-size: cover;
+  background-color: #e3e3e3;
+}
+
+
+Script
+
+import gsap from "gsap";
+
+const mouseDistance = 80;
+const emojiWaitTime = 50;
+const emojiFallDelay = 90;
+const emojiRotations = [90, -90];
+const emojiSizes = [150, 200, 250, 300];
+
+const totalEmojiVariants = 4;
+
+let lastMouseX = 0;
+let lastMouseY = 0;
+let lastEmojiTime = 0;
+
+function createEmoji(mouseX, mouseY) {
+    const emoji = document.createElement("div");
+
+    const size = emojiSizes[Math.floor(Math.random() * emojiSizes.length)];
+    const emojivariants = Math.floor(Math.random() * totalEmojiVariants + 1);
+
+    emoji.className = "emoji";
+    emoji.style.width = `${size}px`;
+    emoji.style.height = `${size}px`;
+    emoji.style.backgroundImage = `url(/img${emojivariants}.webp)`;
+
+    emoji.style.left = `${mouseX - size / 2}px`;
+    emoji.style.top = `${mouseY - size / 2}px`;
+
+    const emojiContainer = document.querySelector(".emojis");
+    if (!emojiContainer) {
+        console.error("No container found for emojis!");
+        return;
+    }
+    emojiContainer.appendChild(emoji);
+
+    const initalRotaion = emojiRotations[Math.floor(Math.random() * emojiRotations.length)];
+
+    const currentTime = Date.now(); // Add this to track the time
+    const delayFromLast = Math.max(0, emojiFallDelay - (currentTime - lastEmojiTime)) / 1000;
+
+    gsap.set(emoji, {
+        scale: 0,
+        rotate: initalRotaion,
+    });
+    gsap.timeline()
+        .to(emoji, {
+            scale: 1,
+            rotate: 0,
+            duration: 0.5,
+            ease: "back.out(1.75)",
+        })
+        .to(emoji, {
+            y: window.innerHeight + size,
+            rotation: initalRotaion,
+            duration: 0.5,
+            ease: "power2.in",
+            delay: emojiWaitTime / 1000 + delayFromLast,
+            onComplete: () => emoji.remove(),
+        });
+
+    return currentTime;
+}
+
+document.addEventListener("mousemove", (e) => {
+    const distance = Math.sqrt(Math.pow(e.clientX - lastMouseX, 2) + Math.pow(e.clientY - lastMouseY, 2));
+
+    if (distance > mouseDistance) {
+        lastEmojiTime = createEmoji(e.clientX, e.clientY);
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    }
+});

@@ -8,7 +8,7 @@ const EmojiRain = () => {
     const emojiFallDelay = 90;
     const emojiRotations = [90, -90];
     const emojiSizes = [150, 200, 250, 300];
-    const totalEmojiVariants = 4;
+    const totalEmojiVariants = 5;
 
     const [lastMouse, setLastMouse] = useState({ x: 0, y: 0, time: 0 });
     const emojiContainerRef = useRef(null);
